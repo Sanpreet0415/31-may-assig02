@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Library Management System</title>
+  <style>
+    /* CSS styles for the frontend interface */
+    /* Add your styles here */
+  </style>
+</head>
+<body>
+  <div id="app">
+    <!-- Forms for adding and updating books/members -->
+    <h2>Add Book</h2>
+    <form id="addBookForm">
+      <input type="text" id="title" placeholder="Title">
+      <input type="text" id="author" placeholder="Author">
+      <input type="text" id="genre" placeholder="Genre">
+      <input type="number" id="publishedYear" placeholder="Published Year">
+      <input type="checkbox" id="available" checked> Available
+      <button type="submit">Add Book</button>
+    </form>
+
+    <h2>Add Member</h2>
+    <form id="addMemberForm">
+      <input type="text" id="name" placeholder="Name">
+      <input type="date" id="membershipDate" placeholder="Membership Date">
+      <input type="checkbox" id="active" checked> Active
+      <button type="submit">Add Member</button>
+    </form>
+
+    <!-- Lists for viewing books/members -->
+    <h2>Books</h2>
+    <ul id="bookList"></ul>
+
+    <h2>Members</h2>
+    <ul id="memberList"></ul>
+  </div>
+
+  <script>
+    // JavaScript logic for interacting with the JSON Server
+    const apiUrl = 'http://localhost:3000';
+
+    // Function to fetch books from the server
+    const fetchBooks = async () => {
+      const response = await fetch(`${apiUrl}/books`);
+      const data = await response.json();
+      return data;
+    };
+
+    // Function to fetch members from the server
+    const fetchMembers = async () => {
+      const response = await fetch(`${apiUrl}/members`);
+      const data = await response.json();
+      return data;
+    };
+
+    // Function to add a book
+    const addBook = async (title, author, genre, publishedYear, available) => {
+      const response = await fetch(`${apiUrl}/books`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          title,
+          author,
+          genre,
+          publishedYear,
+          available
+        })
+      });
+      const data = await response.json();
+      return data;
+    };
+
+    // Function to add a member
+    const addMember = async (name, membershipDate, active) => {
+      const response = await fetch(`${apiUrl}/members`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          name,
+          membershipDate,
+          active
+        })
+      });
+      const data = await response.json();
+      return data;
+    };
+
+    // Event listener for adding a book
+    document.getElementById('addBookForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const title = document.getElementById('title').value;
+      const author = document.getElementById('author').value;
+      const genre = document.getElementById('genre').value;
+      const publishedYear = document.getElementById('publishedYear').value;
+      const available = document.getElementById('available').checked;
+      await addBook(title, author, genre, publishedYear, available);
+      location.reload(); // Reload the page to reflect the changes
+    });
+
+    // Event listener for adding a member
+    document.getElementById('addMemberForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('name').value;
+      const membershipDate = document.getElementById('membershipDate').value;
+      const active = document.getElementById('active').checked;
+      await addMember(name, membershipDate, active);
+      location.reload(); // Reload the page to reflect the changes
+    });
+
+    // Function to display books
+    const displayBooks = async () => {
+      const books = await fetchBooks();
+      const bookList = document.getElementById('bookList');
+      bookList.innerHTML = '';
+      books.forEach(book => {
+        const li = document.createElement('li');
+        li.textContent = `${book.title} by ${book.author}`;
+        bookList.appendChild(li);
+      });
+    };
+
+    // Function to display members
+    const displayMembers = async () => {
+      const members = await fetchMembers();
+      const memberList = document.getElementById('memberList');
+      memberList.innerHTML = '';
+      members.forEach(member => {
+        const li = document.createElement('li');
+        li.textContent = `${member.name}, joined on ${member.membershipDate}`;
+        memberList.appendChild(li);
+      });
+    };
+
+    // Load data when the page loads
+    document.addEventListener('DOMContentLoaded', async () => {
+      await displayBooks();
+      await displayMembers();
+    });
+  </script>
+</body>
+</html>
